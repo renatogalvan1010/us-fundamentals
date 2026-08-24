@@ -1,0 +1,33 @@
+name: Actualizar fundamentals
+
+on:
+  schedule:
+    - cron: "0 11 * * 1-5"   # 11:00 UTC = 8:00 AM Buenos Aires, lun a vie
+  workflow_dispatch: {}        # botón para correrlo a mano cuando quieras
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install yfinance
+
+      - name: Bajar datos de Yahoo
+        run: python scripts/fetch_data.py
+
+      - name: Commitear data.json si cambió
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs/data.json
+          git commit -m "Actualizar fundamentals ($(date -u +%Y-%m-%d))" || echo "Sin cambios"
+          git push

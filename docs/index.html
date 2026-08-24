@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>US Fundamentals</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1116; --panel: #12161d; --line: #232a35; --line2: #1b212b;
+    --text: #e6e9ef; --dim: #8a93a3; --accent: #5b8cff;
+    --good: #3fae74; --mid: #b8a13e; --warn: #d1583f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', system-ui, sans-serif; padding: 28px 20px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  .top { display: flex; align-items: baseline; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 4px; }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--dim); font-size: 13px; margin: 0 0 22px; }
+  .mono { font-family: 'DM Mono', monospace; }
+  .panel { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { padding: 10px 12px; text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--panel); }
+  thead tr { border-bottom: 1px solid var(--line); }
+  th { color: var(--dim); font-weight: 500; cursor: pointer; user-select: none; }
+  th.active { color: var(--accent); }
+  tbody tr { border-bottom: 1px solid var(--line2); }
+  tbody tr:hover { background: #171c24; }
+  tbody tr:hover td:first-child { background: #171c24; }
+  .tk { font-weight: 700; }
+  .meta { color: var(--dim); font-size: 11.5px; }
+  .legend { display: flex; gap: 18px; margin-top: 14px; font-size: 12px; color: var(--dim); flex-wrap: wrap; }
+  .g-good { color: var(--good); font-weight: 500; }
+  .g-mid  { color: var(--mid); }
+  .g-warn { color: var(--warn); font-weight: 500; }
+  .err { color: var(--warn); padding: 40px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>US Fundamentals<span>.</span></h1>
+    <div class="sub mono" id="updated">cargando…</div>
+  </div>
+  <p class="sub">Datos de Yahoo Finance · clic en un encabezado para ordenar · foto del último refresh, no en vivo</p>
+
+  <div class="panel">
+    <table>
+      <thead><tr id="head"></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+
+  <div class="legend">
+    <span><span class="g-good">●</span> atractivo</span>
+    <span><span class="g-mid">●</span> neutral</span>
+    <span><span class="g-warn">●</span> caro / débil</span>
+  </div>
+</div>
+
+<script>
+const COLS = [
+  { key: "price",         label: "Precio",     fmt: v => v==null?"—":"$"+v.toFixed(2) },
+  { key: "marketCap",     label: "Mkt Cap",    fmt: v => v==null?"—":"$"+(v/1e9).toFixed(1)+"B" },
+  { key: "pe",            label: "P/E",        fmt: v => v==null?"—":v.toFixed(1)+"x", grade: v => v==null?null:(v>0&&v<15?"good":v>30?"warn":"mid") },
+  { key: "evEbitda",      label: "EV/EBITDA",  fmt: v => v==null?"—":v.toFixed(1)+"x", grade: v => v==null?null:(v<8?"good":v>15?"warn":"mid") },
+  { key: "pbv",           label: "P/BV",       fmt: v => v==null?"—":v.toFixed(1)+"x", grade: v => v==null?null:(v<1.5?"good":v>5?"warn":"mid") },
+  { key: "roe",           label: "ROE",        fmt: v => v==null?"—":(v*100).toFixed(1)+"%", grade: v => v==null?null:(v>0.15?"good":v<0.05?"warn":"mid") },
+  { key: "netMargin",     label: "Margen neto",fmt: v => v==null?"—":(v*100).toFixed(1)+"%", grade: v => v==null?null:(v>0.15?"good":v<0.05?"warn":"mid") },
+  { key: "netDebtEbitda", label: "Deuda/EBITDA",fmt: v => v==null?"—":v.toFixed(1)+"x", grade: v => v==null?null:(v<1?"good":v>3?"warn":"mid") },
+  { key: "divYield",      label: "Div yield",  fmt: v => v==null?"—":(v*100).toFixed(2)+"%" },
+];
+
+let data = [], sortKey = "marketCap", sortDir = -1;
+
+function render() {
+  const head = document.getElementById("head");
+  head.innerHTML = "<th onclick=\"sortBy('ticker')\">Empresa</th>" +
+    COLS.map(c => `<th class="${sortKey===c.key?'active':''}" onclick="sortBy('${c.key}')">${c.label}${sortKey===c.key?(sortDir<0?" ↓":" ↑"):""}</th>`).join("");
+
+  const rows = [...data].sort((a,b) => {
+    const av = a[sortKey] ?? -Infinity, bv = b[sortKey] ?? -Infinity;
+    return (av>bv?1:av<bv?-1:0) * sortDir;
+  });
+
+  document.getElementById("body").innerHTML = rows.map(c =>
+    `<tr><td><div class="tk mono">${c.ticker}</div><div class="meta">${c.name||""} · ${c.sector||"—"}</div></td>` +
+    COLS.map(col => {
+      const v = c[col.key];
+      const g = col.grade ? col.grade(v) : null;
+      return `<td class="mono ${g?'g-'+g:''}">${col.fmt(v)}</td>`;
+    }).join("") + "</tr>"
+  ).join("");
+}
+
+function sortBy(k) {
+  if (k === sortKey) sortDir = -sortDir; else { sortKey = k; sortDir = -1; }
+  render();
+}
+
+fetch("data.json?" + Date.now())
+  .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+  .then(j => {
+    data = j.companies || [];
+    document.getElementById("updated").textContent = "Actualizado: " + (j.updated || "—");
+    render();
+  })
+  .catch(() => {
+    document.getElementById("updated").textContent = "";
+    document.getElementById("body").innerHTML =
+      '<tr><td colspan="10" class="err">Todavía no hay datos. Corré el workflow en la pestaña Actions de GitHub (Run workflow) y recargá.</td></tr>';
+  });
+</script>
+</body>
+</html>
