@@ -1,4 +1,89 @@
 {
-  "updated": "aún no corrió — usá Run workflow en la pestaña Actions",
-  "companies": []
+  "updated": "2026-08-24 16:29 UTC",
+  "companies": [
+    {
+      "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "sector": "Technology",
+      "price": 311.995,
+      "marketCap": 4553311256576,
+      "pe": 35.77924,
+      "evEbitda": 27.240315594819986,
+      "pbv": 42.390625,
+      "roe": 1.4875101,
+      "netMargin": 0.27618998,
+      "netDebtEbitda": 0.13065685929459028,
+      "divYield": 0.0034615939358002535
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft Corporation",
+      "sector": "Technology",
+      "price": 489.055,
+      "marketCap": 3631500230656,
+      "pe": 27.275793,
+      "evEbitda": 18.963792269541198,
+      "pbv": 8.210443,
+      "roe": 0.34039003,
+      "netMargin": 0.40305,
+      "netDebtEbitda": 0.26755971977394727,
+      "divYield": 0.00744292564231017
+    },
+    {
+      "ticker": "JPM",
+      "name": "JP Morgan Chase & Co.",
+      "sector": "Financial Services",
+      "price": 356.925,
+      "marketCap": 948773060608,
+      "pe": 15.292416,
+      "evEbitda": null,
+      "pbv": 2.6835053,
+      "roe": 0.17789,
+      "netMargin": 0.34921002,
+      "netDebtEbitda": null,
+      "divYield": 0.016810254255095608
+    },
+    {
+      "ticker": "GOOGL",
+      "name": "Alphabet Inc.",
+      "sector": "Communication Services",
+      "price": 351.185,
+      "marketCap": 4294969655296,
+      "pe": 17.620922,
+      "evEbitda": 24.10019739633263,
+      "pbv": 6.900051,
+      "roe": 0.48676,
+      "netMargin": 0.54771,
+      "netDebtEbitda": -0.7027037421946938,
+      "divYield": 0.002505801785383772
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "sector": "Technology",
+      "price": 210.63,
+      "marketCap": 5101669318656,
+      "pe": 32.25574,
+      "evEbitda": 30.579354288428835,
+      "pbv": 26.100374,
+      "roe": 1.14288,
+      "netMargin": 0.62966,
+      "netDebtEbitda": -0.2438343463332097,
+      "divYield": 0.004747661776575037
+    },
+    {
+      "ticker": "KO",
+      "name": "Coca-Cola Company (The)",
+      "sector": "Consumer Defensive",
+      "price": 91.94,
+      "marketCap": 395576377344,
+      "pe": 27.609612,
+      "evEbitda": 24.912718305593824,
+      "pbv": 10.943935,
+      "roe": 0.42054,
+      "netMargin": 0.28558,
+      "netDebtEbitda": 1.6407812376785502,
+      "divYield": 0.023058516423754623
+    }
+  ]
 }
