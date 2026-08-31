@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-28 21:49 UTC",
+  "updated": "2026-08-31 11:03 UTC",
   "companies": [
     {
       "ticker": "AAPL",
@@ -7,7 +7,7 @@
       "sector": "Technology",
       "price": 319.7,
       "marketCap": 4665759498240,
-      "pe": 36.704937,
+      "pe": 36.62085,
       "evEbitda": 27.90981374356137,
       "pbv": 43.4375,
       "roe": 1.4875101,
@@ -21,7 +21,7 @@
       "sector": "Technology",
       "price": 513.53,
       "marketCap": 3813240733696,
-      "pe": 28.640827,
+      "pe": 28.577076,
       "evEbitda": 19.89945590515488,
       "pbv": 8.621339,
       "roe": 0.34039003,
@@ -35,7 +35,7 @@
       "sector": "Financial Services",
       "price": 357.62,
       "marketCap": 950620520448,
-      "pe": 15.322193,
+      "pe": 15.315631,
       "evEbitda": null,
       "pbv": 2.6887305,
       "roe": 0.17789,
@@ -63,7 +63,7 @@
       "sector": "Technology",
       "price": 217.55,
       "marketCap": 5253179637760,
-      "pe": 27.503162,
+      "pe": 27.468435,
       "evEbitda": 25.98337789155623,
       "pbv": 26.95787,
       "roe": 1.17211,
