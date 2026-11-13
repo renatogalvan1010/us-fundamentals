@@ -1,9 +1,18 @@
-name: Actualizar fundamentals
+name: Actualizar datos
 
 on:
   schedule:
-    - cron: "0 11 * * 1-5"   # 11:00 UTC = 8:00 AM Buenos Aires, lun a vie
-  workflow_dispatch: {}        # botón para correrlo a mano cuando quieras
+    - cron: "0 11 * * 1-5"   # días hábiles 8:00 Buenos Aires
+  workflow_dispatch:
+    inputs:
+      agregar:
+        description: "Tickers a agregar, separados por coma (ej: META, YPFD.BA)"
+        required: false
+        default: ""
+      quitar:
+        description: "Tickers a quitar, separados por coma"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -13,21 +22,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Instalar dependencias
-        run: pip install yfinance
-
-      - name: Bajar datos de Yahoo
+        run: pip install yfinance pandas
+      - name: Bajar datos
+        env:
+          AGREGAR: ${{ github.event.inputs.agregar }}
+          QUITAR: ${{ github.event.inputs.quitar }}
         run: python scripts/fetch_data.py
-
-      - name: Commitear data.json si cambió
+      - name: Commitear cambios
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add docs/data.json
-          git commit -m "Actualizar fundamentals ($(date -u +%Y-%m-%d))" || echo "Sin cambios"
+          git add docs/data.json tickers.json
+          git diff --staged --quiet || git commit -m "Datos actualizados $(date -u +'%Y-%m-%d %H:%M')"
           git push

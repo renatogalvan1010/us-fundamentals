@@ -1,119 +1,374 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>US Fundamentals</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Evaluación de empresas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0e1116; --panel: #12161d; --line: #232a35; --line2: #1b212b;
-    --text: #e6e9ef; --dim: #8a93a3; --accent: #5b8cff;
-    --good: #3fae74; --mid: #b8a13e; --warn: #d1583f;
+:root{
+  --bg:#EEF1F4; --panel:#FFFFFF; --ink:#16202A; --muted:#5F6B78; --line:#D5DBE2;
+  --accent:#1F5F8B; --cheap:#23774A; --cheap-bg:#E2F1E8; --rich:#AD3434; --rich-bg:#F8E4E3;
+  --neutral-bg:#E7EBEF; --track:#E1E6EB;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#121A22; --panel:#19232D; --ink:#E6ECF2; --muted:#93A1AF; --line:#2C3946;
+    --accent:#6FA8D2; --cheap:#5CC08A; --cheap-bg:#173426; --rich:#EE7F7A; --rich-bg:#3A1D1D;
+    --neutral-bg:#23303C; --track:#2A3743;
+    color-scheme:dark;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text);
-    font-family: 'DM Sans', system-ui, sans-serif; padding: 28px 20px; }
-  .wrap { max-width: 1180px; margin: 0 auto; }
-  .top { display: flex; align-items: baseline; justify-content: space-between;
-    flex-wrap: wrap; gap: 12px; margin-bottom: 4px; }
-  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
-  h1 span { color: var(--accent); }
-  .sub { color: var(--dim); font-size: 13px; margin: 0 0 22px; }
-  .mono { font-family: 'DM Mono', monospace; }
-  .panel { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
-  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
-  th, td { padding: 10px 12px; text-align: right; white-space: nowrap; }
-  th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--panel); }
-  thead tr { border-bottom: 1px solid var(--line); }
-  th { color: var(--dim); font-weight: 500; cursor: pointer; user-select: none; }
-  th.active { color: var(--accent); }
-  tbody tr { border-bottom: 1px solid var(--line2); }
-  tbody tr:hover { background: #171c24; }
-  tbody tr:hover td:first-child { background: #171c24; }
-  .tk { font-weight: 700; }
-  .meta { color: var(--dim); font-size: 11.5px; }
-  .legend { display: flex; gap: 18px; margin-top: 14px; font-size: 12px; color: var(--dim); flex-wrap: wrap; }
-  .g-good { color: var(--good); font-weight: 500; }
-  .g-mid  { color: var(--mid); }
-  .g-warn { color: var(--warn); font-weight: 500; }
-  .err { color: var(--warn); padding: 40px; text-align: center; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:15px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.wrap{max-width:1240px;margin:0 auto;padding:24px 20px 64px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin-bottom:20px}
+header.top h1{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0;line-height:1.1}
+header.top p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:600;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+.controls input,.controls select{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px}
+.controls input{width:180px}
+
+/* resumen de lecturas */
+.tally{display:flex;gap:28px;flex-wrap:wrap;margin:0 0 16px;padding:0;list-style:none}
+.tally li{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--muted)}
+.tally b{font-size:22px;font-weight:800;color:var(--ink)}
+
+/* tabla */
+.tablewrap{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:980px}
+th,td{padding:10px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-size:12px;font-weight:600;color:var(--muted);position:sticky;top:0;background:var(--panel);cursor:pointer;user-select:none}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+th[aria-sort="ascending"]::after{content:" ▲";font-size:9px}
+th[aria-sort="descending"]::after{content:" ▼";font-size:9px}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--neutral-bg)}
+tbody tr:last-child td{border-bottom:0}
+td.tk{font-weight:800;letter-spacing:.01em}
+td.nm{color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.up{color:var(--cheap)} .down{color:var(--rich)}
+.dim{color:var(--muted)}
+.mk{display:inline-block;font-size:10px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:6px;vertical-align:2px}
+
+/* píldora de lectura */
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700}
+.pill.barata{background:var(--cheap-bg);color:var(--cheap)}
+.pill.cara{background:var(--rich-bg);color:var(--rich)}
+.pill.en_linea{background:var(--neutral-bg);color:var(--ink)}
+.pill.sin_datos{background:transparent;color:var(--muted);font-weight:500}
+
+/* ficha */
+.back{display:inline-block;margin-bottom:16px;font-size:13px;font-weight:600;text-decoration:none}
+.head{display:grid;grid-template-columns:1fr auto;gap:8px 24px;align-items:end;margin-bottom:24px}
+.head h2{font-size:56px;font-weight:800;letter-spacing:-.04em;line-height:.95;margin:0}
+.head .sub{color:var(--muted);font-size:14px;margin-top:6px}
+.head .px{text-align:right}
+.head .px b{display:block;font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.head .px span{font-size:14px;font-weight:600}
+.verdict{grid-column:1/-1;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px}
+@media (max-width:860px){.grid{grid-template-columns:1fr}.head h2{font-size:42px}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.card h3{margin:0 0 4px;font-size:15px;font-weight:700}
+.card .hint{margin:0 0 16px;color:var(--muted);font-size:13px}
+
+/* gauge: el elemento central */
+.gauge{display:grid;grid-template-columns:110px 1fr 150px;gap:6px 16px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.gauge:first-of-type{border-top:0}
+.gauge .lbl{font-weight:600;font-size:14px}
+.gauge .lbl small{display:block;color:var(--muted);font-weight:400;font-size:11px}
+.track{position:relative;height:30px}
+.track .bar{position:absolute;left:0;right:0;top:13px;height:4px;border-radius:2px;background:var(--track)}
+.track .med{position:absolute;top:6px;width:2px;height:18px;background:var(--muted);transform:translateX(-1px)}
+.track .dot{position:absolute;top:7px;width:16px;height:16px;border-radius:50%;transform:translateX(-8px);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--line)}
+.track .dot.barata{background:var(--cheap)} .track .dot.cara{background:var(--rich)} .track .dot.en_linea{background:var(--ink)}
+.track .ends{position:absolute;top:24px;left:0;right:0;display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+.gauge .val{text-align:right;font-size:13px;line-height:1.35}
+.gauge .val b{font-size:17px}
+@media (max-width:560px){.gauge{grid-template-columns:1fr auto}.gauge .track{grid-column:1/-1;grid-row:2}}
+
+.kv{display:grid;grid-template-columns:1fr auto;gap:8px 16px;font-size:14px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-weight:600}
+.chart svg{display:block;width:100%;height:auto}
+.note{font-size:12px;color:var(--muted);background:var(--neutral-bg);border-radius:8px;padding:8px 12px;margin-top:12px}
+.histwrap{overflow-x:auto;margin-top:20px}
+.histwrap table{min-width:640px}
+.histwrap th{position:static;cursor:default}
+
+.empty{background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:40px 24px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
+@media (prefers-reduced-motion:no-preference){.track .dot{transition:left .4s ease}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top">
-    <h1>US Fundamentals<span>.</span></h1>
-    <div class="sub mono" id="updated">cargando…</div>
-  </div>
-  <p class="sub">Datos de Yahoo Finance · clic en un encabezado para ordenar · foto del último refresh, no en vivo</p>
-
-  <div class="panel">
-    <table>
-      <thead><tr id="head"></tr></thead>
-      <tbody id="body"></tbody>
-    </table>
-  </div>
-
-  <div class="legend">
-    <span><span class="g-good">●</span> atractivo</span>
-    <span><span class="g-mid">●</span> neutral</span>
-    <span><span class="g-warn">●</span> caro / débil</span>
-  </div>
+<div class="wrap" id="app">
+  <div class="empty"><b>Cargando datos…</b></div>
 </div>
 
 <script>
-const COLS = [
-  { key: "price",         label: "Precio",     fmt: v => v==null?"—":"$"+v.toFixed(2) },
-  { key: "marketCap",     label: "Mkt Cap",    fmt: v => v==null?"—":"$"+(v/1e9).toFixed(1)+"B" },
-  { key: "pe",            label: "P/E",        fmt: v => v==null?"—":v.toFixed(1)+"x", grade: v => v==null?null:(v>0&&v<15?"good":v>30?"warn":"mid") },
-  { key: "evEbitda",      label: "EV/EBITDA",  fmt: v => v==null?"—":v.toFixed(1)+"x", grade: v => v==null?null:(v<8?"good":v>15?"warn":"mid") },
-  { key: "pbv",           label: "P/BV",       fmt: v => v==null?"—":v.toFixed(1)+"x", grade: v => v==null?null:(v<1.5?"good":v>5?"warn":"mid") },
-  { key: "roe",           label: "ROE",        fmt: v => v==null?"—":(v*100).toFixed(1)+"%", grade: v => v==null?null:(v>0.15?"good":v<0.05?"warn":"mid") },
-  { key: "netMargin",     label: "Margen neto",fmt: v => v==null?"—":(v*100).toFixed(1)+"%", grade: v => v==null?null:(v>0.15?"good":v<0.05?"warn":"mid") },
-  { key: "netDebtEbitda", label: "Deuda/EBITDA",fmt: v => v==null?"—":v.toFixed(1)+"x", grade: v => v==null?null:(v<1?"good":v>3?"warn":"mid") },
-  { key: "divYield",      label: "Div yield",  fmt: v => v==null?"—":(v*100).toFixed(2)+"%" },
+const $ = s => document.querySelector(s);
+const app = $("#app");
+let DATA = null;
+const state = { mercado: "todos", q: "", sector: "", sort: "lectura", dir: 1 };
+
+/* ---------- formato ---------- */
+const nf = (d=1) => new Intl.NumberFormat("es-AR", {minimumFractionDigits:d, maximumFractionDigits:d});
+const fx  = v => v == null ? "–" : nf(1).format(v) + "x";
+const pct = (v, d=1) => v == null ? "–" : nf(d).format(v*100) + "%";
+const sgn = (v, d=1) => {
+  if (v == null) return "–";
+  const r = +(v*100).toFixed(d);
+  return (r > 0 ? "+" : "") + nf(d).format(r === 0 ? 0 : r) + "%";
+};
+const px  = (v, cur) => v == null ? "–" : (cur === "ARS" ? "$ " : "US$ ") + nf(2).format(v);
+const big = (v, cur) => {
+  if (v == null) return "–";
+  const a = Math.abs(v), s = (cur === "ARS" ? "$ " : "US$ ");
+  if (a >= 1e12) return s + nf(1).format(v/1e12) + " B";   // billón (10^12)
+  if (a >= 1e9)  return s + nf(1).format(v/1e9) + " mil M";
+  if (a >= 1e6)  return s + nf(0).format(v/1e6) + " M";
+  return s + nf(0).format(v);
+};
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const MULT = [
+  {k:"pe",        lbl:"P/E",        sub:"TTM",           fmt:fx,  menor:true},
+  {k:"ev_ebitda", lbl:"EV/EBITDA",  sub:"TTM",           fmt:fx,  menor:true},
+  {k:"pbv",       lbl:"P/BV",       sub:"último balance",fmt:fx,  menor:true},
+  {k:"div_yield", lbl:"Div. yield", sub:"últimos 12m",   fmt:v=>pct(v,2), menor:false},
+  {k:"fcf_yield", lbl:"FCF yield",  sub:"TTM",           fmt:v=>pct(v,1), menor:false},
 ];
+const LECT = {barata:"Barata vs. su historia", cara:"Cara vs. su historia", en_linea:"En línea con su historia", sin_datos:"Sin historia suficiente"};
+const LECT_CORTA = {barata:"Barata", cara:"Cara", en_linea:"En línea", sin_datos:"Sin datos"};
 
-let data = [], sortKey = "marketCap", sortDir = -1;
-
-function render() {
-  const head = document.getElementById("head");
-  head.innerHTML = "<th onclick=\"sortBy('ticker')\">Empresa</th>" +
-    COLS.map(c => `<th class="${sortKey===c.key?'active':''}" onclick="sortBy('${c.key}')">${c.label}${sortKey===c.key?(sortDir<0?" ↓":" ↑"):""}</th>`).join("");
-
-  const rows = [...data].sort((a,b) => {
-    const av = a[sortKey] ?? -Infinity, bv = b[sortKey] ?? -Infinity;
-    return (av>bv?1:av<bv?-1:0) * sortDir;
-  });
-
-  document.getElementById("body").innerHTML = rows.map(c =>
-    `<tr><td><div class="tk mono">${c.ticker}</div><div class="meta">${c.name||""} · ${c.sector||"—"}</div></td>` +
-    COLS.map(col => {
-      const v = c[col.key];
-      const g = col.grade ? col.grade(v) : null;
-      return `<td class="mono ${g?'g-'+g:''}">${col.fmt(v)}</td>`;
-    }).join("") + "</tr>"
-  ).join("");
-}
-
-function sortBy(k) {
-  if (k === sortKey) sortDir = -sortDir; else { sortKey = k; sortDir = -1; }
-  render();
-}
-
-fetch("data.json?" + Date.now())
-  .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-  .then(j => {
-    data = j.companies || [];
-    document.getElementById("updated").textContent = "Actualizado: " + (j.updated || "—");
-    render();
-  })
+/* ---------- carga ---------- */
+fetch("data.json?v=" + Date.now())
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => { DATA = d; route(); })
   .catch(() => {
-    document.getElementById("updated").textContent = "";
-    document.getElementById("body").innerHTML =
-      '<tr><td colspan="10" class="err">Todavía no hay datos. Corré el workflow en la pestaña Actions de GitHub (Run workflow) y recargá.</td></tr>';
+    app.innerHTML = `<div class="empty"><b>No se pudo leer data.json</b>Revisá que el archivo exista en la carpeta docs del repo y que GitHub Pages apunte a esa carpeta.</div>`;
   });
+window.addEventListener("hashchange", route);
+
+function route() {
+  if (!DATA) return;
+  const t = decodeURIComponent(location.hash.slice(1));
+  const e = t && DATA.empresas.find(x => x.ticker === t);
+  e ? renderFicha(e) : renderScreener();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- screener ---------- */
+function filtradas() {
+  const q = state.q.toLowerCase();
+  let rows = DATA.empresas.filter(e =>
+    (state.mercado === "todos" || e.mercado === state.mercado) &&
+    (!state.sector || e.sector === state.sector) &&
+    (!q || e.ticker.toLowerCase().includes(q) || e.nombre.toLowerCase().includes(q)));
+  const get = {
+    ticker: e => e.ticker, nombre: e => e.nombre, var: e => e.var_1d,
+    pe: e => e.actual.pe, pe_fwd: e => e.actual.pe_fwd, ev_ebitda: e => e.actual.ev_ebitda,
+    pbv: e => e.actual.pbv, div_yield: e => e.actual.div_yield, fcf_yield: e => e.actual.fcf_yield,
+    crec: e => e.crec_ventas, lectura: e => e.lectura.puntaje,
+  }[state.sort];
+  rows.sort((a, b) => {
+    const x = get(a), y = get(b);
+    if (x == null && y == null) return 0;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    return (typeof x === "string" ? x.localeCompare(y) : x - y) * state.dir;
+  });
+  return rows;
+}
+
+function renderScreener() {
+  document.title = "Evaluación de empresas";
+  if (!DATA.empresas.length) {
+    app.innerHTML = `<div class="empty"><b>Todavía no hay datos</b>Andá a la pestaña Actions del repo, elegí “Actualizar datos” y tocá “Run workflow”. En uno o dos minutos se completa esta tabla.</div>`;
+    return;
+  }
+  const sectores = [...new Set(DATA.empresas.map(e => e.sector))].sort();
+  const gen = DATA.generado ? new Date(DATA.generado).toLocaleString("es-AR", {dateStyle:"medium", timeStyle:"short"}) : "–";
+  app.innerHTML = `
+    <header class="top">
+      <div><h1>Evaluación de empresas</h1><p>Datos de Yahoo Finance, actualizados ${esc(gen)}</p></div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Mercado">
+          ${[["todos","Todas"],["US","EE.UU."],["AR","Argentina"]].map(([v,l]) =>
+            `<button data-m="${v}" aria-pressed="${state.mercado===v}">${l}</button>`).join("")}
+        </div>
+        <select id="sector" aria-label="Sector"><option value="">Todos los sectores</option>
+          ${sectores.map(s => `<option ${s===state.sector?"selected":""}>${esc(s)}</option>`).join("")}</select>
+        <input id="q" type="search" placeholder="Buscar ticker o nombre" value="${esc(state.q)}" aria-label="Buscar">
+      </div>
+    </header>
+    <ul class="tally" id="tally"></ul>
+    <div class="tablewrap"><table>
+      <thead><tr>
+        ${[["ticker","Ticker"],["nombre","Empresa"],["var","Precio / día"],["pe","P/E"],["pe_fwd","P/E fwd"],
+           ["ev_ebitda","EV/EBITDA"],["pbv","P/BV"],["div_yield","Div. yield"],["fcf_yield","FCF yield"],
+           ["crec","Crec. ventas"],["lectura","Lectura histórica"]]
+          .map(([k,l]) => `<th data-k="${k}" aria-sort="${state.sort===k ? (state.dir>0?"ascending":"descending") : "none"}">${l}</th>`).join("")}
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    ${DATA.errores?.length ? `<p class="note">No se pudieron bajar: ${DATA.errores.map(e=>esc(e.ticker)).join(", ")}. Revisá que el ticker exista en Yahoo Finance (los argentinos llevan .BA).</p>` : ""}`;
+
+  app.querySelectorAll(".seg button").forEach(b => b.onclick = () => { state.mercado = b.dataset.m; renderScreener(); });
+  $("#sector").onchange = e => { state.sector = e.target.value; fillRows(); };
+  $("#q").oninput = e => { state.q = e.target.value; fillRows(); };
+  app.querySelectorAll("th").forEach(th => th.onclick = () => {
+    const k = th.dataset.k;
+    state.dir = state.sort === k ? -state.dir : 1; state.sort = k;
+    app.querySelectorAll("th").forEach(h => h.setAttribute("aria-sort", h.dataset.k===k ? (state.dir>0?"ascending":"descending") : "none"));
+    fillRows();
+  });
+  fillRows();
+}
+
+function fillRows() {
+  const rows = filtradas();
+  const c = {barata:0, en_linea:0, cara:0};
+  rows.forEach(e => { if (e.lectura.categoria in c) c[e.lectura.categoria]++; });
+  $("#tally").innerHTML = `
+    <li><b>${rows.length}</b> empresas</li>
+    <li><b class="up">${c.barata}</b> baratas vs. su historia</li>
+    <li><b>${c.en_linea}</b> en línea</li>
+    <li><b class="down">${c.cara}</b> caras</li>`;
+  $("#rows").innerHTML = rows.map(e => {
+    const a = e.actual, l = e.lectura;
+    return `<tr tabindex="0" data-t="${esc(e.ticker)}">
+      <td class="tk">${esc(e.ticker.replace(".BA",""))}<span class="mk">${e.mercado}</span></td>
+      <td class="nm" title="${esc(e.nombre)}">${esc(e.nombre)}</td>
+      <td>${px(e.precio, e.moneda)} <span class="${e.var_1d>0?"up":e.var_1d<0?"down":"dim"}">${sgn(e.var_1d)}</span></td>
+      <td>${fx(a.pe)}</td><td class="dim">${fx(a.pe_fwd)}</td><td>${fx(a.ev_ebitda)}</td><td>${fx(a.pbv)}</td>
+      <td>${pct(a.div_yield,2)}</td><td>${pct(a.fcf_yield)}</td>
+      <td class="${e.crec_ventas>0?"up":e.crec_ventas<0?"down":""}">${sgn(e.crec_ventas)}</td>
+      <td><span class="pill ${l.categoria}">${LECT_CORTA[l.categoria]}${l.puntaje!=null?` ${sgn(l.puntaje,0)}`:""}</span></td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="11" class="dim" style="text-align:center">Ninguna empresa coincide con el filtro.</td></tr>`;
+  $("#rows").querySelectorAll("tr[data-t]").forEach(tr => {
+    const go = () => location.hash = encodeURIComponent(tr.dataset.t);
+    tr.onclick = go;
+    tr.onkeydown = ev => { if (ev.key === "Enter") go(); };
+  });
+}
+
+/* ---------- ficha ---------- */
+function categoriaMultiplo(m, act, med) {
+  if (act == null || !med || act <= 0) return "en_linea";
+  const p = m.menor ? act/med - 1 : med/act - 1;
+  const u = DATA.umbral ?? .15;
+  return p <= -u ? "barata" : p >= u ? "cara" : "en_linea";
+}
+
+function gauge(m, e) {
+  const act = e.actual[m.k], r = e.resumen[m.k];
+  if (!r) {
+    return `<div class="gauge"><div class="lbl">${m.lbl}<small>${m.sub}</small></div>
+      <div class="dim" style="font-size:13px">Sin historia suficiente para comparar</div>
+      <div class="val"><b>${m.fmt(act)}</b></div></div>`;
+  }
+  let lo = Math.min(r.min, act ?? r.min), hi = Math.max(r.max, act ?? r.max);
+  const pad = (hi - lo) * .08 || Math.abs(hi) * .1 || 1; lo -= pad; hi += pad;
+  const pos = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + "%";
+  const cat = categoriaMultiplo(m, act, r.mediana);
+  return `<div class="gauge">
+    <div class="lbl">${m.lbl}<small>${m.sub}</small></div>
+    <div class="track" role="img" aria-label="${m.lbl}: actual ${m.fmt(act)}, rango histórico ${m.fmt(r.min)} a ${m.fmt(r.max)}, mediana ${m.fmt(r.mediana)}">
+      <div class="bar" style="left:${pos(r.min)};right:calc(100% - ${pos(r.max)})"></div>
+      <div class="med" style="left:${pos(r.mediana)}" title="Mediana ${m.fmt(r.mediana)}"></div>
+      ${act != null ? `<div class="dot ${cat}" style="left:${pos(act)}"></div>` : ""}
+      <div class="ends" style="left:${pos(r.min)};right:calc(100% - ${pos(r.max)})"><span>${m.fmt(r.min)}</span><span>${m.fmt(r.max)}</span></div>
+    </div>
+    <div class="val"><b>${m.fmt(act)}</b><br><span class="dim">mediana ${m.fmt(r.mediana)}</span>
+      ${r.desvio!=null?`<br><span class="${cat==="barata"?"up":cat==="cara"?"down":"dim"}">${sgn(r.desvio,0)} vs. mediana</span>`:""}</div>
+  </div>`;
+}
+
+function chart(e) {
+  const s = e.precios_1a;
+  if (!s || s.length < 2) return `<p class="dim">Sin serie de precios.</p>`;
+  const W = 640, H = 220, P = 28, PB = 40, vals = s.map(p => p[1]);
+  const lo = Math.min(...vals), hi = Math.max(...vals), rng = (hi - lo) || 1;
+  const x = i => P + i * (W - 2*P) / (s.length - 1), y = v => H - PB - (v - lo) / rng * (H - P - PB);
+  const d = s.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[1]).toFixed(1)}`).join("");
+  const up = vals.at(-1) >= vals[0];
+  const ch = vals.at(-1) / vals[0] - 1;
+  const mes = t => new Date(t + "T12:00").toLocaleDateString("es-AR", {month:"short", year:"2-digit"});
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Precio último año, variación ${sgn(ch)}">
+    <line x1="${P}" x2="${W-P}" y1="${y(hi)}" y2="${y(hi)}" stroke="var(--line)" stroke-dasharray="3 4"/>
+    <line x1="${P}" x2="${W-P}" y1="${y(lo)}" y2="${y(lo)}" stroke="var(--line)" stroke-dasharray="3 4"/>
+    <text x="${W-P}" y="${y(hi)-6}" text-anchor="end" font-size="11" fill="var(--muted)">máx ${nf(2).format(hi)}</text>
+    <text x="${W-P}" y="${y(lo)+15}" text-anchor="end" font-size="11" fill="var(--muted)">mín ${nf(2).format(lo)}</text>
+    <path d="${d}" fill="none" stroke="${up ? "var(--cheap)" : "var(--rich)"}" stroke-width="2" stroke-linejoin="round"/>
+    <text x="${P}" y="${H-4}" font-size="11" fill="var(--muted)">${mes(s[0][0])}</text>
+    <text x="${W-P}" y="${H-4}" font-size="11" fill="var(--muted)" text-anchor="end">${mes(s.at(-1)[0])}</text>
+  </svg><p class="hint" style="margin:8px 0 0">Último año: <b class="${up?"up":"down"}">${sgn(ch)}</b></p>`;
+}
+
+function renderFicha(e) {
+  document.title = e.ticker + " · Evaluación de empresas";
+  const l = e.lectura, cur = e.moneda;
+  const h = e.historico || [];
+  app.innerHTML = `
+    <a href="#" class="back">← Volver al listado</a>
+    <section class="head">
+      <div><h2>${esc(e.ticker.replace(".BA",""))}</h2>
+        <div class="sub">${esc(e.nombre)}${e.industria ? ` · ${esc(e.industria)}` : ""}${e.mercado==="AR"?" · BYMA":""}</div></div>
+      <div class="px"><b>${px(e.precio, cur)}</b><span class="${e.var_1d>0?"up":e.var_1d<0?"down":"dim"}">${sgn(e.var_1d)} hoy</span></div>
+      <div class="verdict"><span class="pill ${l.categoria}">${LECT[l.categoria]}</span>
+        ${l.puntaje!=null ? `<span>En promedio cotiza ${sgn(l.puntaje,0)} contra sus medianas, sobre ${l.base} múltiplo${l.base>1?"s":""}.</span>` : ""}</div>
+    </section>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Hoy contra su propia historia</h3>
+        <p class="hint">La línea es el rango de ${h.length ? `${h[0].anio}–${h.at(-1).anio}` : "los ejercicios disponibles"}, la marca vertical es la mediana y el punto es el valor actual.</p>
+        ${MULT.map(m => gauge(m, e)).join("")}
+        ${e.avisos.map(a => `<p class="note">${esc(a)}</p>`).join("")}
+      </div>
+      <div style="display:grid;gap:20px;align-content:start">
+        <div class="card chart"><h3>Precio</h3>${chart(e)}</div>
+        <div class="card"><h3>Fundamentals</h3>
+          <dl class="kv">
+            <dt>Market cap</dt><dd>${big(e.market_cap, cur)}</dd>
+            <dt>Deuda neta</dt><dd>${big(e.deuda_neta, cur)}</dd>
+            <dt>Deuda neta / EBITDA</dt><dd>${fx(e.deuda_neta_ebitda)}</dd>
+            <dt>P/E forward</dt><dd>${fx(e.actual.pe_fwd)}</dd>
+            <dt>Crecimiento ventas (interanual)</dt><dd>${sgn(e.crec_ventas)}</dd>
+            <dt>Margen EBITDA</dt><dd>${pct(e.margen_ebitda)}</dd>
+            <dt>Margen neto</dt><dd>${pct(e.margen_neto)}</dd>
+            <dt>ROE</dt><dd>${pct(e.roe)}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    ${h.length ? `<div class="card histwrap"><h3>Por ejercicio</h3>
+      <p class="hint">Múltiplos calculados con el precio al cierre de cada ejercicio fiscal.</p>
+      <table><thead><tr><th>Ejercicio</th><th>Precio</th><th>EPS</th><th>Ventas</th><th>EBITDA</th>
+        <th>P/E</th><th>EV/EBITDA</th><th>P/BV</th><th>Div. yield</th><th>FCF yield</th></tr></thead>
+      <tbody>${h.slice().reverse().map(r => `<tr>
+        <td>${r.anio}</td><td>${nf(2).format(r.precio)}</td><td>${r.eps==null?"–":nf(2).format(r.eps)}</td>
+        <td>${big(r.ventas, cur)}</td><td>${big(r.ebitda, cur)}</td>
+        <td>${fx(r.pe)}</td><td>${fx(r.ev_ebitda)}</td><td>${fx(r.pbv)}</td>
+        <td>${pct(r.div_yield,2)}</td><td>${pct(r.fcf_yield)}</td></tr>`).join("")}
+      </tbody></table></div>` : ""}`;
+}
 </script>
 </body>
 </html>
