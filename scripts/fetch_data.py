@@ -42,6 +42,12 @@ def num(x):
     return None if math.isnan(v) or math.isinf(v) else v
 
 
+def positivo(x):
+    """Múltiplos con denominador negativo (patrimonio o EBITDA < 0) no se comparan."""
+    v = num(x)
+    return v if v is not None and v > 0 else None
+
+
 def fila(df, *nombres):
     """Devuelve la primera fila que exista en un estado contable de yfinance."""
     if df is None or df.empty:
@@ -76,7 +82,8 @@ def ratio(a, b, minimo_b=0):
 
 
 def redondear(d, n=4):
-    return {k: (round(v, n) if isinstance(v, float) else v) for k, v in d.items()}
+    # "+ 0.0" convierte -0.0 en 0.0 para que no aparezca "-0,0%"
+    return {k: (round(v, n) + 0.0 if isinstance(v, float) else v) for k, v in d.items()}
 
 
 # ------------------------------------------------------------ lista tickers
@@ -192,7 +199,10 @@ def lectura(resumen, actual):
             puntajes.append(med / act - 1)       # yield alto = barata
     if not puntajes:
         return {"categoria": "sin_datos", "puntaje": None, "base": 0}
-    p = statistics.mean(puntajes)
+    # Cada múltiplo pesa como máximo ±100% y se usa la mediana, para que
+    # un dato raro (un yield cerca de cero, un balance atípico) no domine.
+    puntajes = [max(-1.0, min(1.0, x)) for x in puntajes]
+    p = statistics.median(puntajes)
     cat = "barata" if p <= -UMBRAL else "cara" if p >= UMBRAL else "en_linea"
     return {"categoria": cat, "puntaje": round(p, 4), "base": len(puntajes)}
 
@@ -217,10 +227,10 @@ def procesar(sym, mercado):
     div_tasa = num(info.get("trailingAnnualDividendRate")) or num(info.get("dividendRate"))
 
     actual = redondear({
-        "pe": num(info.get("trailingPE")),
-        "pe_fwd": num(info.get("forwardPE")),
-        "ev_ebitda": num(info.get("enterpriseToEbitda")),
-        "pbv": num(info.get("priceToBook")),
+        "pe": positivo(info.get("trailingPE")),
+        "pe_fwd": positivo(info.get("forwardPE")),
+        "ev_ebitda": positivo(info.get("enterpriseToEbitda")),
+        "pbv": positivo(info.get("priceToBook")),
         "div_yield": ratio(div_tasa, precio) if div_tasa else 0.0,
         "fcf_yield": ratio(fcf, mcap),
     })
