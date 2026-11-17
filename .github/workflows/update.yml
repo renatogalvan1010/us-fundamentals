@@ -2,7 +2,7 @@ name: Actualizar datos
 
 on:
   schedule:
-    - cron: "0 11 * * 1-5"   # días hábiles 8:00 Buenos Aires
+        - cron: "23 21 * * 1-5"   # días hábiles ~18:23 Buenos Aires, post cierre
   workflow_dispatch:
     inputs:
       agregar:
